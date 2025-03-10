@@ -1,0 +1,22 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Project Boundary",
+        "district": "Trincomalee"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [81.2, 7.1],
+          [81.4, 7.1],
+          [81.4, 7.3],
+          [81.2, 7.3],
+          [81.2, 7.1]
+        ]]
+      }
+    }
+  ]
+} 
