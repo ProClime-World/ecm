@@ -7,6 +7,11 @@ interface MapProps {
   className?: string;
 }
 
+// Define an interface for HTMLElement with Leaflet properties
+interface LeafletHTMLElement extends HTMLElement {
+  _leaflet_id?: number | null;
+}
+
 export const Map: React.FC<MapProps> = ({ className }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
@@ -32,17 +37,14 @@ export const Map: React.FC<MapProps> = ({ className }) => {
         
         // Check for any existing map instance on this element and remove it
         if (mapRef.current) {
-          // @ts-ignore - Using Leaflet internal properties
-          if (mapRef.current._leaflet_id) {
-            try {
-              // Find and remove any existing map instance
-              const maps = L.DomUtil.get(mapRef.current);
-              if (maps && maps._leaflet_id) {
-                maps._leaflet_id = null;
-              }
-            } catch (e) {
-              console.log("No existing map to clean up");
+          try {
+            // Find and remove any existing map instance
+            const maps = L.DomUtil.get(mapRef.current) as LeafletHTMLElement;
+            if (maps && maps._leaflet_id) {
+              maps._leaflet_id = null;
             }
+          } catch (e) {
+            console.log("No existing map to clean up");
           }
           
           // Now create a new map
@@ -75,8 +77,8 @@ export const Map: React.FC<MapProps> = ({ className }) => {
             ).addTo(mapInstance);
             
             // Add the side-by-side control if plugin loaded
-            if (L.Control.SideBySide || (L.Control as any).SideBySide) {
-              const SideBySideControl = (L.Control as any).SideBySide || L.Control.SideBySide;
+            const SideBySideControl = (L.Control as any).SideBySide;
+            if (SideBySideControl) {
               new SideBySideControl(osmLayer, satelliteLayer).addTo(mapInstance);
             }
             
