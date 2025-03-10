@@ -7,8 +7,14 @@ interface MapProps {
   className?: string;
 }
 
+// Extend HTMLDivElement to include Leaflet properties
+interface LeafletHTMLElement extends HTMLDivElement {
+  _leaflet_id?: number;
+}
+
 export const Map: React.FC<MapProps> = ({ className }) => {
-  const mapRef = useRef<HTMLDivElement>(null);
+  // Update the ref type to use our extended interface
+  const mapRef = useRef<LeafletHTMLElement>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !mapRef.current) return;
@@ -86,8 +92,12 @@ export const Map: React.FC<MapProps> = ({ className }) => {
         try {
           // Get the Leaflet map instance if it exists
           const mapContainer = mapRef.current;
-          if (mapContainer._leaflet_id && window.L) {
-            const map = window.L.Map.getMap(mapContainer._leaflet_id);
+          
+          // Add proper type checking for Leaflet's dynamically added properties
+          if (mapContainer._leaflet_id && typeof window !== 'undefined' && 'L' in window) {
+            // Safe casting of window.L to any type to access the non-standard method
+            const leaflet = (window as any).L;
+            const map = leaflet.Map.getMap(mapContainer._leaflet_id);
             if (map) map.remove();
           }
         } catch (e) {

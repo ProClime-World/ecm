@@ -21,6 +21,10 @@ self.onmessage = async (e) => {
 
     self.postMessage({ georaster, type });
   } catch (error) {
-    self.postMessage({ error: error.message });
+    if (error instanceof Error) {
+      self.postMessage({ error: error.message });
+    } else {
+      self.postMessage({ error: String(error) });
+    }
   }
 }; 
