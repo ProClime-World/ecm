@@ -2,6 +2,25 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 // Fix the CanvasJS import to use dynamic import with require
 const CanvasJSReact = typeof window !== 'undefined' ? require('@canvasjs/react-charts') : null;
@@ -52,6 +71,64 @@ const CarbonSequestrationGraph: React.FC = () => {
     { x: new Date(2063, 0), y: 3132.880, label: "2063" }
   ];
 
+  // Chart.js data for the Bar chart
+  const emissionReductionData = {
+    labels: Array.from({ length: 39 }, (_, i) => (2025 + i).toString()),
+    datasets: [
+      {
+        label: 'Carbon Sequestration (tonnes CO₂e)',
+        data: [
+          37795, 108755, 213108, 317461, 421814, 526168, 630521, 734874, 839227, 
+          943581, 1047934, 1152287, 1256641, 1360994, 1465348, 1569701, 1674055, 
+          1778408, 1882762, 1987115, 2245132, 2304745, 2330907, 2381030, 2431153, 
+          2481276, 2531399, 2581522, 2631645, 2681768, 2731891, 2782015, 2832138, 
+          2882261, 2932385, 2982509, 3032632, 3082756, 3132879
+        ],
+        backgroundColor: '#4CAF50',
+      }
+    ]
+  };
+
+  // Chart.js options for the Bar chart
+  const barOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      title: {
+        display: true,
+        text: 'Projected Carbon Sequestration Over Time',
+        font: {
+          size: 16
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context: any) {
+            return `${context.dataset.label}: ${context.parsed.y.toLocaleString()} tonnes`;
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: 'Tonnes CO₂e'
+        }
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Year'
+        }
+      }
+    }
+  };
+
   const options = {
     animationEnabled: true,
     theme: "light2",
@@ -99,7 +176,26 @@ const CarbonSequestrationGraph: React.FC = () => {
     return (
       <div className="w-full py-4 bg-white rounded-lg p-4 shadow-sm">
         <h3 className="text-xl font-bold mb-4">Carbon Sequestration Projection</h3>
-        <p>Loading chart data...</p>
+        <div className="bg-white/80 p-6 rounded-lg shadow">
+          <h3 className="text-2xl font-bold mb-4">Carbon Sequestration</h3>
+          <p className="mb-4">
+            The East Coast Mangrove Project is projected to sequester a total of 
+            <span className="font-bold text-green-700"> 7,09,24,487.29 tonnes of CO₂e</span> over 
+            the project lifetime (2025-2063).
+          </p>
+          <div className="h-[400px]">
+            <Bar options={barOptions} data={emissionReductionData} />
+          </div>
+          <div className="mt-6">
+            <h4 className="text-lg font-semibold mb-2">Additional Benefits</h4>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Enhanced biodiversity and habitat for marine species</li>
+              <li>Improved water quality in coastal areas</li>
+              <li>Reduced coastal erosion and protection against storm surges</li>
+              <li>Sustainable livelihoods for local communities</li>
+            </ul>
+          </div>
+        </div>
       </div>
     );
   }

@@ -9,16 +9,36 @@ interface MapProps {
 
 export const Map: React.FC<MapProps> = ({ className }) => {
   const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<any>(null); // To store the map instance
 
   useEffect(() => {
     // Make sure we have window available and the ref is attached
     if (typeof window === 'undefined' || !mapRef.current) return;
     
+    // Cleanup any existing map first
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.remove();
+      mapInstanceRef.current = null;
+    }
+    
     // Import Leaflet dynamically to avoid SSR issues
     import('leaflet').then((L) => {
+      // Check if map container already has a map initialized
+      if (mapRef.current && mapRef.current._leaflet_id) {
+        try {
+          const existingMap = L.Map.getMap(mapRef.current._leaflet_id);
+          if (existingMap) {
+            existingMap.remove();
+          }
+        } catch (e) {
+          console.log("No existing map to clean up");
+        }
+      }
+      
       import('leaflet-side-by-side').then(() => {
         // Create map
         const map = L.map(mapRef.current!).setView([7.2906, 81.6337], 9);
+        mapInstanceRef.current = map; // Store map instance for cleanup
         
         // Basic OSM layer (left)
         const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -70,19 +90,10 @@ export const Map: React.FC<MapProps> = ({ className }) => {
     
     // Cleanup function
     return () => {
-      if (mapRef.current) {
-        // Clean up the map on component unmount
+      if (mapInstanceRef.current) {
         try {
-          // Access the map instance through the Leaflet internal methods
-          const leafletContainer = mapRef.current;
-          // @ts-ignore - Accessing internal Leaflet property
-          const mapInstance = leafletContainer._leaflet_id ? 
-            // @ts-ignore
-            window.L.Map.getMap(leafletContainer._leaflet_id) : null;
-          
-          if (mapInstance) {
-            mapInstance.remove();
-          }
+          mapInstanceRef.current.remove();
+          mapInstanceRef.current = null;
         } catch (e) {
           console.error("Error cleaning up map:", e);
         }

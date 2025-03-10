@@ -2,8 +2,84 @@
 
 import React from 'react';
 import Image from 'next/image';
+import { Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 export const CoBenefitsAnalysis: React.FC = () => {
+  // Actual carbon sequestration data from 2025 to 2063
+  const emissionReductionData = {
+    labels: Array.from({ length: 39 }, (_, i) => (2025 + i).toString()),
+    datasets: [
+      {
+        label: 'Carbon Sequestration (tonnes CO₂e)',
+        data: [
+          37795, 108755, 213108, 317461, 421814, 526168, 630521, 734874, 839227, 
+          943581, 1047934, 1152287, 1256641, 1360994, 1465348, 1569701, 1674055, 
+          1778408, 1882762, 1987115, 2245132, 2304745, 2330907, 2381030, 2431153, 
+          2481276, 2531399, 2581522, 2631645, 2681768, 2731891, 2782015, 2832138, 
+          2882261, 2932385, 2982509, 3032632, 3082756, 3132879
+        ],
+        backgroundColor: '#4CAF50',
+      }
+    ]
+  };
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top' as const,
+      },
+      title: {
+        display: true,
+        text: 'Projected Carbon Sequestration Over Time',
+        font: {
+          size: 16
+        }
+      },
+      tooltip: {
+        callbacks: {
+          label: function(context: any) {
+            return `${context.dataset.label}: ${context.parsed.y.toLocaleString()} tonnes`;
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: 'Tonnes CO₂e'
+        }
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Year'
+        }
+      }
+    }
+  };
+
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -17,44 +93,35 @@ export const CoBenefitsAnalysis: React.FC = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
             <div className="bg-white/80 p-4 rounded-lg shadow">
-              <h4 className="font-bold text-primary">Community Livelihoods</h4>
-              <p>8,000+ people will experience improved livelihoods through direct employment, skills 
-              development, and alternative income sources.</p>
+              <h4 className="font-bold text-primary">Sustainable Livelihoods</h4>
+              <p>Employment for 250+ local community members in:</p>
+              <ul className="list-disc pl-6 mt-2">
+                <li>Mangrove nursery management</li>
+                <li>Planting and monitoring</li>
+                <li>Eco-tourism opportunities</li>
+                <li>Sustainable fisheries</li>
+              </ul>
             </div>
+            
             <div className="bg-white/80 p-4 rounded-lg shadow">
-              <h4 className="font-bold text-primary">Women's Empowerment</h4>
-              <p>1,000+ women benefit from employment in nursery management, mangrove planting, 
-              and local business development initiatives.</p>
-            </div>
-            <div className="bg-white/80 p-4 rounded-lg shadow">
-              <h4 className="font-bold text-primary">Food Security</h4>
-              <p>Enhanced fisheries production through mangrove nursery habitat restoration 
-              improves food security and nutrition in coastal communities.</p>
-            </div>
-            <div className="bg-white/80 p-4 rounded-lg shadow">
-              <h4 className="font-bold text-primary">Education</h4>
-              <p>Early childhood education programs enable women to work while providing 
-              children with vital learning opportunities.</p>
+              <h4 className="font-bold text-primary">Community Development</h4>
+              <ul className="list-disc pl-6">
+                <li>Skills training programs for 500+ participants</li>
+                <li>Women's empowerment initiatives</li>
+                <li>Educational programs in local schools</li>
+                <li>Community-based monitoring systems</li>
+              </ul>
             </div>
           </div>
-          
-          <h4 className="text-xl font-bold mt-6 mb-2">Economic Impact</h4>
-          <p>
-            In the Batticaloa, Ampara, and Trincomalee districts, 95% of coastal communities 
-            primarily depend on fishing and farming for their livelihoods, earning an average of just 
-            $1 to $1.50 per day. Our project creates sustainable economic alternatives through:
-          </p>
-          <ul className="list-disc pl-6 mt-3 space-y-2">
-            <li>Mangrove nursery management and planting jobs</li>
-            <li>Sustainable fishing practices training</li>
-            <li>Capacity-building workshops for climate resilience</li>
-            <li>Eco-tourism development opportunities</li>
-            <li>Alternative livelihood development for farmers and fishermen</li>
-          </ul>
         </div>
         
         <div>
           <h3 className="text-2xl font-bold mb-4">Environmental Co-Benefits</h3>
+          <p className="mb-4">
+            Beyond carbon capture, restored mangrove ecosystems provide crucial environmental services 
+            that enhance resilience to climate change and support biodiversity conservation.
+          </p>
+          
           <div className="relative h-56 mb-4 rounded-lg overflow-hidden">
             <Image 
               src="/images/mangrove-biodiversity.jpg" 
@@ -110,6 +177,27 @@ export const CoBenefitsAnalysis: React.FC = () => {
               ))}
             </div>
           </div>
+        </div>
+      </div>
+      
+      <div className="bg-white/80 p-6 rounded-lg shadow">
+        <h3 className="text-2xl font-bold mb-4">Carbon Sequestration</h3>
+        <p className="mb-4">
+          The East Coast Mangrove Project is projected to sequester a total of 
+          <span className="font-bold text-green-700"> 7,09,24,487.29 tonnes of CO₂e</span> over 
+          the project lifetime (2025-2063).
+        </p>
+        <div className="h-[400px]">
+          <Bar options={options} data={emissionReductionData} />
+        </div>
+        <div className="mt-6">
+          <h4 className="text-lg font-semibold mb-2">Additional Benefits</h4>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Enhanced biodiversity and habitat for marine species</li>
+            <li>Improved water quality in coastal areas</li>
+            <li>Reduced coastal erosion and protection against storm surges</li>
+            <li>Sustainable livelihoods for local communities</li>
+          </ul>
         </div>
       </div>
     </div>
